@@ -1022,7 +1022,11 @@
 
   function clearInput() {
     document.getElementById('input').value = '';
-    updateInputCount();
+    document.getElementById('output').value = '';
+    document.getElementById('input-count').textContent = '0 characters';
+    document.getElementById('output-count').textContent = '0 characters';
+    document.getElementById('size-stat').textContent = '';
+    document.getElementById('changelog-body').innerHTML = '<span class="no-changes">Run cleanup to see what was changed.</span>';
   }
 
   function resetAll() {
