@@ -21,8 +21,6 @@
       --sans: 'IBM Plex Sans', sans-serif;
     }
 
-
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     ::selection {
@@ -402,7 +400,10 @@
       font-family: var(--mono);
       font-size: 0.65rem;
       color: var(--text-dim);
-      margin-right: 0.2rem;
+      padding: 0.3rem 1rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface2);
+      text-align: right;
     }
 
     .icon-btn {
@@ -624,7 +625,6 @@
       <div class="preset-group">
         <span class="preset-label">Preset:</span>
         <button class="preset-btn" id="preset-safe"       onclick="setPreset('safe')">Safe</button>
-        <button class="preset-btn" id="preset-thorough"   onclick="setPreset('thorough')">Thorough</button>
         <button class="preset-btn" id="preset-aggressive" onclick="setPreset('aggressive')">Aggressive</button>
         <div class="preset-divider"></div>
         <button class="preset-btn" id="preset-none" onclick="setPreset('none')">Clear All</button>
@@ -716,23 +716,23 @@
       <div class="pane-header">
         <span class="pane-title">Input</span>
         <div class="pane-actions">
-          <span class="char-count" id="input-count">0 characters</span>
           <button class="icon-btn" onclick="clearInput()">✕ clear</button>
           <button class="icon-btn" onclick="resetAll()">↺ reset</button>
           <button class="icon-btn" onclick="pasteInput()">⌅ paste</button>
         </div>
       </div>
       <textarea id="input" placeholder="Paste your HTML here..." oninput="updateInputCount()"></textarea>
+      <span class="char-count" id="input-count">0 characters</span>
     </div>
     <div class="editor-pane">
       <div class="pane-header">
         <span class="pane-title">Output</span>
         <div class="pane-actions">
-          <span class="char-count" id="output-count">0 characters</span>
           <button class="icon-btn" id="copy-btn" onclick="copyOutput()">⎘ copy</button>
         </div>
       </div>
       <textarea id="output" readonly placeholder="Cleaned HTML will appear here..."></textarea>
+      <span class="char-count" id="output-count">0 characters</span>
     </div>
   </div>
 
@@ -781,7 +781,6 @@
     <h2>Presets explained</h2>
     <ul>
       <li><strong>Safe</strong> — The recommended starting point. Removes the most common junk (inline styles, class attributes, MS Office markup, empty tags, invisible characters) with essentially zero risk of affecting how your content looks or behaves.</li>
-      <li><strong>Thorough</strong> — Everything in Safe, plus less common but still generally safe removals: id attributes on non-anchor elements, tabindex, extra &amp;nbsp; chains, HTML comments, bare &lt;div&gt; wrappers, &lt;b&gt;/&lt;i&gt; normalization, and smart quote conversion. Use this when Safe isn't enough.</li>
       <li><strong>Aggressive</strong> — All rules enabled, including aria-* attributes. Best for heavily polluted HTML where you want the most complete cleanup. Review the output before using it.</li>
       <li><strong>Clear All</strong> — Unchecks everything so you can hand-pick exactly which rules to run.</li>
     </ul>
@@ -844,19 +843,13 @@
     'opt_normalize_whitespace','opt_trailing_whitespace'
   ];
 
-  const thoroughOpts = [
-    ...safeOpts,
-    'opt_ids','opt_tabindex','opt_extra_nbsp','opt_html_comments',
-    'opt_empty_divs','opt_normalize_bi','opt_smart_quotes'
-  ];
-
   const allOpts = Object.values(catMap).flat();
 
   function setPreset(preset) {
-    ['safe','thorough','aggressive','none'].forEach(p => {
+    ['safe','aggressive','none'].forEach(p => {
       document.getElementById('preset-' + p)?.classList.remove('active');
     });
-    if (['safe','thorough','aggressive'].includes(preset)) {
+    if (['safe','aggressive','none'].includes(preset)) {
       document.getElementById('preset-' + preset).classList.add('active');
     }
     allOpts.forEach(id => {
@@ -865,7 +858,6 @@
       if (preset === 'aggressive') el.checked = true;
       else if (preset === 'none') el.checked = false;
       else if (preset === 'safe') el.checked = safeOpts.includes(id);
-      else if (preset === 'thorough') el.checked = thoroughOpts.includes(id);
     });
     updateAllMeta();
   }
@@ -1015,6 +1007,9 @@
 
     if (get('opt_empty_divs')) {
       applyBlock(() => {
+        // Targets only bare <div> (no attributes). Loops 4x to handle nesting depth.
+        // Note: lazy [\s\S]*? matches innermost div first per pass, which is correct
+        // behavior for unwrapping — outer wrappers are collapsed in subsequent passes.
         for (let i = 0; i < 4; i++)
           output = output.replace(/<div>\s*([\s\S]*?)\s*<\/div>/g, '$1');
       }, 'Bare <div> wrappers unwrapped', 'cleaned');
@@ -1031,6 +1026,11 @@
 
     if (get('opt_normalize_bi')) {
       applyBlock(() => {
+        // Note: passes any existing attributes (e.g. style=) from <b>/<i> into the
+        // replacement tag. In practice this is safe because opt_inline_styles runs
+        // earlier in the pipeline and will have already stripped those attributes.
+        // If running opt_normalize_bi standalone without opt_inline_styles, inline
+        // styles on <b>/<i> tags will be carried over to <strong>/<em>.
         output = output.replace(/<b(\s[^>]*)?>([\s\S]*?)<\/b>/gi, '<strong$1>$2</strong>');
         output = output.replace(/<i(\s[^>]*)?>([\s\S]*?)<\/i>/gi, '<em$1>$2</em>');
       }, '<b> / <i> normalized to semantic tags', 'cleaned');
