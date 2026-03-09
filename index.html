@@ -472,7 +472,6 @@
       background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 8px;
-      overflow: hidden;
     }
 
     .changelog-header {
@@ -547,12 +546,21 @@
       margin-left: 0.1rem;
     }
 
+    .change-popover.light {
+      --bg: #f5f7f8;
+      --surface: #ffffff;
+      --surface2: #eef2f4;
+      --border: #d7dde2;
+      --border-active: #b5bdc5;
+      --text: #1f252b;
+      --text-muted: #4d5963;
+      --text-dim: #6e7a84;
+    }
+
     .change-popover {
       display: none;
       position: absolute;
-      top: calc(100% + 6px);
-      left: 0;
-      z-index: 100;
+      z-index: 1000;
       background: var(--surface);
       border: 1px solid var(--border-active);
       border-radius: 6px;
@@ -564,7 +572,7 @@
       box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
 
-    .change-tag.open .change-popover {
+    .change-popover.popover-open {
       display: block;
     }
 
@@ -888,15 +896,55 @@
 
 <script>
   // ── Changelog popover toggle ──
+  let activePopover = null;
+
+  function closePopover() {
+    if (activePopover) {
+      activePopover.classList.remove('popover-open');
+      document.body.removeChild(activePopover);
+      activePopover = null;
+    }
+    document.querySelectorAll('.change-tag.open').forEach(el => el.classList.remove('open'));
+  }
+
   document.addEventListener('click', e => {
     const tag = e.target.closest('.change-tag.has-detail');
-    // Close all others
-    document.querySelectorAll('.change-tag.open').forEach(el => {
-      if (el !== tag) el.classList.remove('open');
-    });
-    if (tag) {
-      e.stopPropagation();
-      tag.classList.toggle('open');
+
+    if (!tag) {
+      closePopover();
+      return;
+    }
+
+    // Clicking the already-open tag closes it
+    if (tag.classList.contains('open')) {
+      closePopover();
+      return;
+    }
+
+    closePopover();
+
+    const popover = tag.querySelector('.change-popover').cloneNode(true);
+    tag.classList.add('open');
+
+    // Inherit theme from body
+    if (document.body.classList.contains('light')) popover.classList.add('light');
+    popover.classList.add('popover-open');
+    document.body.appendChild(popover);
+    activePopover = popover;
+
+    // Position below the tag
+    const rect = tag.getBoundingClientRect();
+    const top = rect.bottom + window.scrollY + 6;
+    let left = rect.left + window.scrollX;
+
+    popover.style.top = top + 'px';
+    popover.style.left = left + 'px';
+
+    // Nudge left if it overflows the right edge
+    const popWidth = popover.offsetWidth;
+    if (left + popWidth > window.innerWidth - 8) {
+      left = Math.max(8, window.innerWidth - popWidth - 8);
+      popover.style.left = left + 'px';
     }
   });
 
@@ -904,6 +952,7 @@
   function toggleTheme() {
     const light = document.body.classList.toggle('light');
     document.getElementById('theme-toggle').textContent = light ? '● Dark' : '☀ Light';
+    if (activePopover) activePopover.classList.toggle('light', light);
   }
 
   // ── Tab switching ──
@@ -1210,12 +1259,19 @@
         if (hasDetail) {
           const shown = c.detail.slice(0, MAX);
           const rest = c.detail.length - shown.length;
-          const items = shown.map(v => {
+          // Deduplicate: count occurrences of each unique value
+          const countMap = {};
+          c.detail.forEach(v => { countMap[v] = (countMap[v] || 0) + 1; });
+          const unique = Object.entries(countMap).sort((a,b) => b[1] - a[1]);
+          const shownUnique = unique.slice(0, MAX);
+          const restUnique = unique.length - shownUnique.length;
+          const items = shownUnique.map(([v, n]) => {
             const escaped = v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
             const truncated = escaped.length > 60 ? escaped.slice(0, 60) + '…' : escaped;
-            return `<div class="popover-item">${truncated}</div>`;
+            const countBadge = n > 1 ? `<span style="opacity:0.5;margin-right:0.4em;">×${n}</span>` : '';
+            return `<div class="popover-item">${countBadge}${truncated}</div>`;
           }).join('');
-          const more = rest > 0 ? `<div class="popover-more">+${rest} more</div>` : '';
+          const more = restUnique > 0 ? `<div class="popover-more">+${restUnique} more unique values</div>` : '';
           popoverHTML = `<div class="change-popover"><div class="popover-title">${c.detail.length} instance${c.detail.length !== 1 ? 's' : ''} removed</div>${items}${more}</div>`;
         }
         return `<span class="change-tag ${c.type}${hasDetail ? ' has-detail' : ''}" data-idx="${i}">${hasDetail ? `<span class="count">${c.matches}</span>` : `<span class="count">${c.matches}</span>`}${c.label}${hasDetail ? '<span class="detail-arrow">▼</span>' : ''}${popoverHTML}</span>`;
