@@ -1,4 +1,4 @@
-HTML Cleanup Tool
+## HTML Cleanup Tool
 A lightweight, self-contained browser tool for stripping formatting noise from HTML without affecting content. Built for support and content teams who copy HTML between platforms and end up with a mess of inline styles, Office artifacts, and junk attributes.
 No installation. No server. No dependencies. Open the HTML file in a browser and use it.
 
