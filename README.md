@@ -34,7 +34,6 @@ Regardless of which preset or rules are enabled, the following are always preser
 | Preset | Description |
 |---|---|
 | **Safe** | Recommended default. Removes inline styles, class attributes, MS Office markup, empty tags, and invisible characters. Very low risk. |
-| **Thorough** | Everything in Safe, plus id attributes on non-anchors, tabindex, extra `&nbsp;` chains, HTML comments, bare `<div>` wrappers, `<b>`/`<i>` normalization, and smart quote conversion. |
 | **Aggressive** | All rules enabled including `aria-*` attributes. Best for heavily polluted HTML. Review output before using. |
 | **Clear All** | Unchecks all rules so you can hand-pick exactly what to run. |
 
@@ -86,6 +85,7 @@ Regardless of which preset or rules are enabled, the following are always preser
 - The **Smart quotes** rule converts curly quotes to straight ASCII. Leave it off if your content intentionally uses typographic quotes.
 - The **aria-*** rule is only in Aggressive because some aria attributes are intentionally added for accessibility. Only enable it if you know the attributes were injected by an editor.
 - Presets are just a starting point — you can enable or disable individual rules after applying one.
+- Use the **Light / Dark** toggle in the top-right corner of the header to switch themes.
 
 ---
 
