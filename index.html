@@ -140,8 +140,6 @@
       cursor: pointer;
       transition: all 0.12s;
       white-space: nowrap;
-      align-self: center;
-      margin-left: 0.25rem;
     }
 
     .theme-toggle:hover {
@@ -612,7 +610,10 @@
     <button class="tab-btn active" id="tab-tool" onclick="showTab('tool')">Tool</button>
     <button class="tab-btn" id="tab-instructions" onclick="showTab('instructions')">Instructions</button>
   </nav>
-  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀ Light</button>
+  <div style="display:flex;align-items:center;gap:0.35rem;align-self:center;margin-left:0.25rem;">
+    <span style="font-family:var(--mono);font-size:0.67rem;color:var(--text-dim);">Theme</span>
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀ Light</button>
+  </div>
 </header>
 
 <!-- ══ TOOL PAGE ══ -->
@@ -805,6 +806,7 @@
       <li>The <strong>Smart quotes</strong> rule converts curly quotes to straight ASCII quotes. If your content intentionally uses typographic quotes (like in published articles), leave this one off.</li>
       <li>The <strong>aria-*</strong> rule is only in Aggressive because some aria attributes are intentionally added for accessibility. Only remove them if you know they were injected by an editor rather than added on purpose.</li>
       <li>You can mix and match rules manually after applying a preset — presets just set a starting point.</li>
+      <li>Use the <strong>Light / Dark</strong> toggle in the top-right corner of the header to switch themes.</li>
     </ul>
   </div>
 
