@@ -21,7 +21,19 @@
       --sans: 'IBM Plex Sans', sans-serif;
     }
 
+
+
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    ::selection {
+      background: #00e5a0;
+      color: #000;
+    }
+
+    body.light ::selection {
+      background: #007a52;
+      color: #fff;
+    }
 
     body {
       background: var(--bg);
@@ -30,6 +42,19 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+    }
+
+    body.light {
+      --bg: #f5f7f8;
+      --surface: #ffffff;
+      --surface2: #eef2f4;
+      --border: #d7dde2;
+      --border-active: #b5bdc5;
+      --accent: #008a5c;
+      --text: #1f252b;
+      --text-muted: #4d5963;
+      --text-dim: #6e7a84;
+      --danger: #c62828;
     }
 
     /* ── Header ── */
@@ -105,11 +130,32 @@
       border-bottom-color: var(--accent);
     }
 
+    /* ── Theme toggle ── */
+    .theme-toggle {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      padding: 0.18rem 0.55rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+      align-self: center;
+      margin-left: 0.25rem;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
     /* ── Pages ── */
     .page { display: none; flex-direction: column; flex: 1; }
     .page.active { display: flex; }
 
-    /* ── Tool page main ── */
+    /* ── Tool page ── */
     .tool-main {
       flex: 1;
       display: flex;
@@ -176,10 +222,7 @@
       white-space: nowrap;
     }
 
-    .preset-btn:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .preset-btn:hover { border-color: var(--accent); color: var(--accent); }
 
     .preset-btn.active {
       border-color: var(--accent);
@@ -219,7 +262,7 @@
       transition: background 0.1s;
     }
 
-    .cat-header:hover { background: #2a2a2a; }
+    .cat-header:hover { background: var(--border); }
 
     .cat-title {
       font-family: var(--mono);
@@ -375,10 +418,7 @@
       line-height: 1;
     }
 
-    .icon-btn:hover {
-      border-color: var(--border-active);
-      color: var(--text);
-    }
+    .icon-btn:hover { border-color: var(--border-active); color: var(--text); }
 
     textarea {
       flex: 1;
@@ -425,12 +465,7 @@
 
     .clean-btn:active { transform: translateY(0); }
 
-    .size-stat {
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      color: var(--text-muted);
-    }
-
+    .size-stat { font-family: var(--mono); font-size: 0.7rem; color: var(--text-muted); }
     .size-stat .reduction { color: var(--accent); }
 
     /* ── Changelog ── */
@@ -496,11 +531,7 @@
       text-align: center;
     }
 
-    .no-changes {
-      font-family: var(--mono);
-      font-size: 0.72rem;
-      color: var(--text-dim);
-    }
+    .no-changes { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
 
     /* ── Instructions page ── */
     .instr-main {
@@ -550,17 +581,8 @@
       position: relative;
     }
 
-    .instr-section ul li::before {
-      content: '—';
-      position: absolute;
-      left: 0;
-      color: var(--text-dim);
-    }
-
-    .instr-section ul li strong {
-      color: var(--text);
-      font-weight: 500;
-    }
+    .instr-section ul li::before { content: '—'; position: absolute; left: 0; color: var(--text-dim); }
+    .instr-section ul li strong { color: var(--text); font-weight: 500; }
 
     .instr-callout {
       background: var(--surface);
@@ -589,11 +611,10 @@
     <button class="tab-btn active" id="tab-tool" onclick="showTab('tool')">Tool</button>
     <button class="tab-btn" id="tab-instructions" onclick="showTab('instructions')">Instructions</button>
   </nav>
+  <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀ Light</button>
 </header>
 
-<!-- ══════════════════════════════════════
-     TOOL PAGE
-══════════════════════════════════════ -->
+<!-- ══ TOOL PAGE ══ -->
 <div class="page active" id="page-tool">
 <div class="tool-main">
 
@@ -618,42 +639,16 @@
           <span class="cat-meta" id="meta-cat-attributes"></span>
           <span class="cat-arrow">▼</span>
         </div>
-        <div class="cat-body">
-          <div class="options-grid">
-            <label class="option-item">
-              <input type="checkbox" id="opt_inline_styles">
-              <div class="option-label"><strong>Inline styles</strong><span>Strip all style="..." attributes</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_classes">
-              <div class="option-label"><strong>Class attributes</strong><span>Remove all class="..." attributes</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_data_attrs">
-              <div class="option-label"><strong>data-* attributes</strong><span>Strip tracking and editor data attributes</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_ids">
-              <div class="option-label"><strong>id attributes</strong><span>Remove id="..." except on &lt;a&gt; anchors</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_lang_attrs">
-              <div class="option-label"><strong>lang= on inline elements</strong><span>Remove lang="en-US" injected by editors</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_presentational_attrs">
-              <div class="option-label"><strong>Presentational attributes</strong><span>Remove align=, valign=, bgcolor=, cellpadding=</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_aria_attrs">
-              <div class="option-label"><strong>aria-* attributes</strong><span>Strip aria- attributes injected by WYSIWYG editors</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_tabindex">
-              <div class="option-label"><strong>tabindex attributes</strong><span>Remove tabindex on non-interactive elements</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="cat-body"><div class="options-grid">
+          <label class="option-item"><input type="checkbox" id="opt_inline_styles"><div class="option-label"><strong>Inline styles</strong><span>Strip all style="..." attributes</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_classes"><div class="option-label"><strong>Class attributes</strong><span>Remove all class="..." attributes</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_data_attrs"><div class="option-label"><strong>data-* attributes</strong><span>Strip tracking and editor data attributes</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_ids"><div class="option-label"><strong>id attributes</strong><span>Remove id="..." except on &lt;a&gt; anchors</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_lang_attrs"><div class="option-label"><strong>lang= on inline elements</strong><span>Remove lang="en-US" injected by editors</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_presentational_attrs"><div class="option-label"><strong>Presentational attributes</strong><span>Remove align=, valign=, bgcolor=, cellpadding=</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_aria_attrs"><div class="option-label"><strong>aria-* attributes</strong><span>Strip aria- attributes injected by WYSIWYG editors</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_tabindex"><div class="option-label"><strong>tabindex attributes</strong><span>Remove tabindex on non-interactive elements</span></div></label>
+        </div></div>
       </div>
 
       <div class="cat-section" id="cat-tags">
@@ -662,42 +657,16 @@
           <span class="cat-meta" id="meta-cat-tags"></span>
           <span class="cat-arrow">▼</span>
         </div>
-        <div class="cat-body">
-          <div class="options-grid">
-            <label class="option-item">
-              <input type="checkbox" id="opt_empty_p">
-              <div class="option-label"><strong>Empty &lt;p&gt; tags</strong><span>Remove &lt;p&gt; tags with only whitespace or &amp;nbsp;</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_empty_spans">
-              <div class="option-label"><strong>Empty / bare &lt;span&gt; tags</strong><span>Remove spans with no attributes or content</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_font_tags">
-              <div class="option-label"><strong>&lt;font&gt; tags</strong><span>Unwrap legacy &lt;font&gt; elements, keep content</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_center_tags">
-              <div class="option-label"><strong>&lt;center&gt; tags</strong><span>Unwrap deprecated &lt;center&gt;, keep content</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_double_br">
-              <div class="option-label"><strong>Duplicate &lt;br&gt; tags</strong><span>Collapse consecutive &lt;br&gt; into one</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_redundant_nesting">
-              <div class="option-label"><strong>Redundant nested tags</strong><span>Collapse doubled &lt;strong&gt;&lt;strong&gt;, &lt;em&gt;&lt;em&gt; etc.</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_normalize_bi">
-              <div class="option-label"><strong>Normalize &lt;b&gt; / &lt;i&gt; tags</strong><span>Convert &lt;b&gt; to &lt;strong&gt; and &lt;i&gt; to &lt;em&gt;</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_empty_divs">
-              <div class="option-label"><strong>Bare wrapper &lt;div&gt; tags</strong><span>Unwrap &lt;div&gt; tags with no attributes</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="cat-body"><div class="options-grid">
+          <label class="option-item"><input type="checkbox" id="opt_empty_p"><div class="option-label"><strong>Empty &lt;p&gt; tags</strong><span>Remove &lt;p&gt; tags with only whitespace or &amp;nbsp;</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_empty_spans"><div class="option-label"><strong>Empty / bare &lt;span&gt; tags</strong><span>Remove spans with no attributes or content</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_font_tags"><div class="option-label"><strong>&lt;font&gt; tags</strong><span>Unwrap legacy &lt;font&gt; elements, keep content</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_center_tags"><div class="option-label"><strong>&lt;center&gt; tags</strong><span>Unwrap deprecated &lt;center&gt;, keep content</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_double_br"><div class="option-label"><strong>Duplicate &lt;br&gt; tags</strong><span>Collapse consecutive &lt;br&gt; into one</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_redundant_nesting"><div class="option-label"><strong>Redundant nested tags</strong><span>Collapse doubled &lt;strong&gt;&lt;strong&gt;, &lt;em&gt;&lt;em&gt; etc.</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_normalize_bi"><div class="option-label"><strong>Normalize &lt;b&gt; / &lt;i&gt; tags</strong><span>Convert &lt;b&gt; to &lt;strong&gt; and &lt;i&gt; to &lt;em&gt;</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_empty_divs"><div class="option-label"><strong>Bare wrapper &lt;div&gt; tags</strong><span>Unwrap &lt;div&gt; tags with no attributes</span></div></label>
+        </div></div>
       </div>
 
       <div class="cat-section" id="cat-encoding">
@@ -706,26 +675,12 @@
           <span class="cat-meta" id="meta-cat-encoding"></span>
           <span class="cat-arrow">▼</span>
         </div>
-        <div class="cat-body">
-          <div class="options-grid">
-            <label class="option-item">
-              <input type="checkbox" id="opt_zero_width">
-              <div class="option-label"><strong>Zero-width spaces</strong><span>Remove invisible &#8203; and \u200B characters</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_soft_hyphens">
-              <div class="option-label"><strong>Soft &amp; non-breaking hyphens</strong><span>Remove &amp;shy; and convert non-breaking hyphens</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_smart_quotes">
-              <div class="option-label"><strong>Smart quotes</strong><span>Normalize curly quotes to straight ASCII quotes</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_extra_nbsp">
-              <div class="option-label"><strong>Extra &amp;nbsp; chains</strong><span>Collapse runs of 3+ &amp;nbsp; down to one</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="cat-body"><div class="options-grid">
+          <label class="option-item"><input type="checkbox" id="opt_zero_width"><div class="option-label"><strong>Zero-width spaces</strong><span>Remove invisible &#8203; and \u200B characters</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_soft_hyphens"><div class="option-label"><strong>Soft &amp; non-breaking hyphens</strong><span>Remove &amp;shy; and convert non-breaking hyphens</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_smart_quotes"><div class="option-label"><strong>Smart quotes</strong><span>Normalize curly quotes to straight ASCII quotes</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_extra_nbsp"><div class="option-label"><strong>Extra &amp;nbsp; chains</strong><span>Collapse runs of 3+ &amp;nbsp; down to one</span></div></label>
+        </div></div>
       </div>
 
       <div class="cat-section" id="cat-office">
@@ -734,22 +689,11 @@
           <span class="cat-meta" id="meta-cat-office"></span>
           <span class="cat-arrow">▼</span>
         </div>
-        <div class="cat-body">
-          <div class="options-grid">
-            <label class="option-item">
-              <input type="checkbox" id="opt_ms_office">
-              <div class="option-label"><strong>MS Office markup</strong><span>Remove &lt;o:p&gt;, mso-* styles, if/endif blocks, xmlns</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_html_comments">
-              <div class="option-label"><strong>HTML comments</strong><span>Remove all &lt;!-- ... --&gt; comments</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_tag_whitespace">
-              <div class="option-label"><strong>Stray whitespace in tags</strong><span>Fix &lt;p &gt; with trailing space before &gt;</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="cat-body"><div class="options-grid">
+          <label class="option-item"><input type="checkbox" id="opt_ms_office"><div class="option-label"><strong>MS Office markup</strong><span>Remove &lt;o:p&gt;, mso-* styles, if/endif blocks, xmlns</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_html_comments"><div class="option-label"><strong>HTML comments</strong><span>Remove all &lt;!-- ... --&gt; comments</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_tag_whitespace"><div class="option-label"><strong>Stray whitespace in tags</strong><span>Fix &lt;p &gt; with trailing space before &gt;</span></div></label>
+        </div></div>
       </div>
 
       <div class="cat-section" id="cat-whitespace">
@@ -758,18 +702,10 @@
           <span class="cat-meta" id="meta-cat-whitespace"></span>
           <span class="cat-arrow">▼</span>
         </div>
-        <div class="cat-body">
-          <div class="options-grid">
-            <label class="option-item">
-              <input type="checkbox" id="opt_normalize_whitespace">
-              <div class="option-label"><strong>Normalize blank lines</strong><span>Collapse 3+ consecutive blank lines to two</span></div>
-            </label>
-            <label class="option-item">
-              <input type="checkbox" id="opt_trailing_whitespace">
-              <div class="option-label"><strong>Trailing whitespace</strong><span>Trim trailing spaces and tabs from each line</span></div>
-            </label>
-          </div>
-        </div>
+        <div class="cat-body"><div class="options-grid">
+          <label class="option-item"><input type="checkbox" id="opt_normalize_whitespace"><div class="option-label"><strong>Normalize blank lines</strong><span>Collapse 3+ consecutive blank lines to two</span></div></label>
+          <label class="option-item"><input type="checkbox" id="opt_trailing_whitespace"><div class="option-label"><strong>Trailing whitespace</strong><span>Trim trailing spaces and tabs from each line</span></div></label>
+        </div></div>
       </div>
 
     </div>
@@ -782,6 +718,7 @@
         <div class="pane-actions">
           <span class="char-count" id="input-count">0 characters</span>
           <button class="icon-btn" onclick="clearInput()">✕ clear</button>
+          <button class="icon-btn" onclick="resetAll()">↺ reset</button>
           <button class="icon-btn" onclick="pasteInput()">⌅ paste</button>
         </div>
       </div>
@@ -814,9 +751,7 @@
 </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     INSTRUCTIONS PAGE
-══════════════════════════════════════ -->
+<!-- ══ INSTRUCTIONS PAGE ══ -->
 <div class="page" id="page-instructions">
 <div class="instr-main">
 
@@ -878,6 +813,12 @@
 </div>
 
 <script>
+  // ── Theme toggle ──
+  function toggleTheme() {
+    const light = document.body.classList.toggle('light');
+    document.getElementById('theme-toggle').textContent = light ? '● Dark' : '☀ Light';
+  }
+
   // ── Tab switching ──
   function showTab(tab) {
     document.getElementById('page-tool').classList.toggle('active', tab === 'tool');
@@ -945,7 +886,6 @@
     if (e.target.type === 'checkbox') updateAllMeta();
   });
 
-  // ── Editor helpers ──
   function updateInputCount() {
     const val = document.getElementById('input').value;
     document.getElementById('input-count').textContent = val.length.toLocaleString() + ' characters';
@@ -954,6 +894,16 @@
   function clearInput() {
     document.getElementById('input').value = '';
     updateInputCount();
+  }
+
+  function resetAll() {
+    document.getElementById('input').value = '';
+    document.getElementById('output').value = '';
+    document.getElementById('input-count').textContent = '0 characters';
+    document.getElementById('output-count').textContent = '0 characters';
+    document.getElementById('size-stat').textContent = '';
+    document.getElementById('changelog-body').innerHTML = '<span class="no-changes">Run cleanup to see what was changed.</span>';
+    setPreset('safe');
   }
 
   async function pasteInput() {
@@ -973,12 +923,13 @@
       const btn = document.getElementById('copy-btn');
       btn.textContent = '✓ copied';
       setTimeout(() => btn.textContent = '⎘ copy', 1600);
+    }).catch(() => {
+      alert('Clipboard write failed. Please copy manually with Ctrl+C.');
     });
   }
 
   function get(id) { return document.getElementById(id).checked; }
 
-  // ── Main cleanup ──
   function cleanHTML() {
     const input = document.getElementById('input').value;
     if (!input.trim()) return;
@@ -1014,38 +965,38 @@
       applyRule(/<!--[\s\S]*?-->/g, '', 'HTML comments', 'removed');
 
     if (get('opt_inline_styles'))
-      applyRule(/\sstyle="[^"]*"/gi, '', 'Inline styles', 'removed');
+      applyRule(/\sstyle\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '', 'Inline styles', 'removed');
 
     if (get('opt_classes'))
-      applyRule(/\sclass="[^"]*"/gi, '', 'class= attributes', 'removed');
+      applyRule(/\sclass\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '', 'class= attributes', 'removed');
 
     if (get('opt_data_attrs'))
-      applyRule(/\sdata-[a-z][a-z0-9-]*="[^"]*"/gi, '', 'data-* attributes', 'removed');
+      applyRule(/\sdata-[a-z][a-z0-9-]*\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '', 'data-* attributes', 'removed');
 
     if (get('opt_ids')) {
       applyBlock(() => {
-        output = output.replace(/(<(?!a[\s>\/])[a-z][^>]*?)\sid="[^"]*"/gi, '$1');
+        output = output.replace(/(<(?!a[\s>\/])[a-z][^>]*?)\sid\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '$1');
       }, 'id= attributes', 'removed');
     }
 
     if (get('opt_lang_attrs')) {
       applyBlock(() => {
-        output = output.replace(/(<(?:span|p|div|td|th|li|ul|ol|h[1-6])[^>]*?)\slang="[^"]*"/gi, '$1');
+        output = output.replace(/(<(?:span|p|div|td|th|li|ul|ol|h[1-6])[^>]*?)\slang\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '$1');
       }, 'lang= on inline elements', 'removed');
     }
 
     if (get('opt_presentational_attrs')) {
       applyBlock(() => {
-        output = output.replace(/\s(?:align|valign|bgcolor|background|cellpadding|cellspacing)="[^"]*"/gi, '');
-        output = output.replace(/(<(?:table|td|th)[^>]*?)\sborder="[^"]*"/gi, '$1');
+        output = output.replace(/\s(?:align|valign|bgcolor|background|cellpadding|cellspacing)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+        output = output.replace(/(<(?:table|td|th)[^>]*?)\sborder\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '$1');
       }, 'Presentational attributes', 'removed');
     }
 
     if (get('opt_aria_attrs'))
-      applyRule(/\saria-[a-z-]+="[^"]*"/gi, '', 'aria-* attributes', 'removed');
+      applyRule(/\saria-[a-z-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '', 'aria-* attributes', 'removed');
 
     if (get('opt_tabindex'))
-      applyRule(/\stabindex="[^"]*"/gi, '', 'tabindex attributes', 'removed');
+      applyRule(/\stabindex\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '', 'tabindex attributes', 'removed');
 
     if (get('opt_tag_whitespace'))
       applyRule(/(<[a-z][a-z0-9]*)\s+(>)/gi, '$1$2', 'Stray whitespace in tags', 'cleaned');
@@ -1080,8 +1031,8 @@
 
     if (get('opt_normalize_bi')) {
       applyBlock(() => {
-        output = output.replace(/<b(\s[^>]*)?>([^<]*)<\/b>/gi, '<strong$1>$2</strong>');
-        output = output.replace(/<i(\s[^>]*)?>([^<]*)<\/i>/gi, '<em$1>$2</em>');
+        output = output.replace(/<b(\s[^>]*)?>([\s\S]*?)<\/b>/gi, '<strong$1>$2</strong>');
+        output = output.replace(/<i(\s[^>]*)?>([\s\S]*?)<\/i>/gi, '<em$1>$2</em>');
       }, '<b> / <i> normalized to semantic tags', 'cleaned');
     }
 
