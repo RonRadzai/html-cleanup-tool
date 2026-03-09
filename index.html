@@ -532,6 +532,79 @@
 
     .no-changes { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); }
 
+    .change-tag.has-detail {
+      cursor: pointer;
+      position: relative;
+    }
+
+    .change-tag.has-detail:hover {
+      filter: brightness(1.15);
+    }
+
+    .change-tag .detail-arrow {
+      font-size: 0.5rem;
+      opacity: 0.6;
+      margin-left: 0.1rem;
+    }
+
+    .change-popover {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      z-index: 100;
+      background: var(--surface);
+      border: 1px solid var(--border-active);
+      border-radius: 6px;
+      padding: 0.5rem 0;
+      min-width: 220px;
+      max-width: 400px;
+      max-height: 260px;
+      overflow-y: auto;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    .change-tag.open .change-popover {
+      display: block;
+    }
+
+    .popover-title {
+      font-family: var(--mono);
+      font-size: 0.58rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0 0.75rem 0.4rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.3rem;
+    }
+
+    .popover-item {
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      color: var(--text-muted);
+      padding: 0.18rem 0.75rem;
+      white-space: pre;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.5;
+    }
+
+    .popover-item:hover {
+      background: var(--surface2);
+      color: var(--text);
+    }
+
+    .popover-more {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      padding: 0.25rem 0.75rem 0;
+      border-top: 1px solid var(--border);
+      margin-top: 0.3rem;
+    }
+
     /* ── Instructions page ── */
     .instr-main {
       flex: 1;
@@ -814,6 +887,19 @@
 </div>
 
 <script>
+  // ── Changelog popover toggle ──
+  document.addEventListener('click', e => {
+    const tag = e.target.closest('.change-tag.has-detail');
+    // Close all others
+    document.querySelectorAll('.change-tag.open').forEach(el => {
+      if (el !== tag) el.classList.remove('open');
+    });
+    if (tag) {
+      e.stopPropagation();
+      tag.classList.toggle('open');
+    }
+  });
+
   // ── Theme toggle ──
   function toggleTheme() {
     const light = document.body.classList.toggle('light');
@@ -933,17 +1019,17 @@
 
     function applyRule(pattern, replacement, label, type) {
       const before = output;
+      const matched = before.match(pattern) || [];
       output = output.replace(pattern, replacement);
       if (output !== before) {
-        const matches = (before.match(pattern) || []).length;
-        changes.push({ label, type, matches });
+        changes.push({ label, type, matches: matched.length, detail: matched });
       }
     }
 
     function applyBlock(fn, label, type) {
       const before = output;
       fn();
-      if (output !== before) changes.push({ label, type, matches: '✓' });
+      if (output !== before) changes.push({ label, type, matches: '✓', detail: null });
     }
 
     if (get('opt_ms_office')) {
@@ -1117,9 +1203,23 @@
     if (changes.length === 0) {
       logEl.innerHTML = '<span class="no-changes">No changes made \u2014 HTML may already be clean, or try enabling more rules.</span>';
     } else {
-      logEl.innerHTML = changes.map(c =>
-        `<span class="change-tag ${c.type}"><span class="count">${c.matches}</span>${c.label}</span>`
-      ).join('');
+      logEl.innerHTML = changes.map((c, i) => {
+        const hasDetail = c.detail && c.detail.length > 0;
+        const MAX = 40;
+        let popoverHTML = '';
+        if (hasDetail) {
+          const shown = c.detail.slice(0, MAX);
+          const rest = c.detail.length - shown.length;
+          const items = shown.map(v => {
+            const escaped = v.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const truncated = escaped.length > 60 ? escaped.slice(0, 60) + '…' : escaped;
+            return `<div class="popover-item">${truncated}</div>`;
+          }).join('');
+          const more = rest > 0 ? `<div class="popover-more">+${rest} more</div>` : '';
+          popoverHTML = `<div class="change-popover"><div class="popover-title">${c.detail.length} instance${c.detail.length !== 1 ? 's' : ''} removed</div>${items}${more}</div>`;
+        }
+        return `<span class="change-tag ${c.type}${hasDetail ? ' has-detail' : ''}" data-idx="${i}">${hasDetail ? `<span class="count">${c.matches}</span>` : `<span class="count">${c.matches}</span>`}${c.label}${hasDetail ? '<span class="detail-arrow">▼</span>' : ''}${popoverHTML}</span>`;
+      }).join('');
     }
   }
 
