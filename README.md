@@ -96,6 +96,4 @@ README.md
 
 ---
 
-## License
-
 MIT
