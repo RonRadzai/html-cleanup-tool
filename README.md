@@ -2,7 +2,9 @@
 
 A lightweight, self-contained browser tool for stripping formatting noise from HTML without affecting content. Built for support and content teams who copy HTML between platforms and end up with a mess of inline styles, Office artifacts, and junk attributes.
 
-No installation. No server. No dependencies. Open the HTML file in a browser and use it.
+No installation. No server. No dependencies.
+
+**[Open the tool](https://ronradzai.github.io/html-cleanup-tool/)**
 
 ---
 
@@ -90,10 +92,6 @@ Regardless of which preset or rules are enabled, the following are always preser
 ## Files
 
 ```
-html-cleanup-tool.html   — the entire tool, self-contained
+index.html   — the entire tool, self-contained
 README.md
 ```
-
----
-
-MIT
