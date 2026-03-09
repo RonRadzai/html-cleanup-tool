@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HTML Cleanup Tool</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #222222;
+      --border: #2e2e2e;
+      --border-active: #444;
+      --accent: #00e5a0;
+      --text: #e8e8e8;
+      --text-muted: #888;
+      --text-dim: #555;
+      --danger: #ff5c5c;
+      --mono: 'IBM Plex Mono', monospace;
+      --sans: 'IBM Plex Sans', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      display: flex;
+      align-items: stretch;
+      gap: 0.75rem;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 0;
+    }
+
+    .logo-icon {
+      width: 26px;
+      height: 26px;
+      background: var(--accent);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #000;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: 0.02em;
+    }
+
+    .tagline {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-left: 0.1rem;
+    }
+
+    /* ── Tab nav ── */
+    .tab-nav {
+      display: flex;
+      margin-left: auto;
+      align-items: flex-end;
+    }
+
+    .tab-btn {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 0.6rem 1.1rem;
+      border: none;
+      border-bottom: 2px solid transparent;
+      background: transparent;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.12s;
+      letter-spacing: 0.04em;
+    }
+
+    .tab-btn:hover { color: var(--text-muted); }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Pages ── */
+    .page { display: none; flex-direction: column; flex: 1; }
+    .page.active { display: flex; }
+
+    /* ── Tool page main ── */
+    .tool-main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem 2rem 2rem;
+      gap: 1rem;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ── Rules panel ── */
+    .rules-panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .rules-header {
+      display: flex;
+      align-items: center;
+      padding: 0.6rem 1rem;
+      background: var(--surface2);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .rules-title {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex: 1;
+      white-space: nowrap;
+    }
+
+    .preset-group {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .preset-label {
+      font-family: var(--mono);
+      font-size: 0.66rem;
+      color: var(--text-dim);
+      white-space: nowrap;
+    }
+
+    .preset-btn {
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .preset-btn.active {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0, 229, 160, 0.08);
+    }
+
+    .preset-divider {
+      width: 1px;
+      height: 12px;
+      background: var(--border-active);
+      margin: 0 0.1rem;
+    }
+
+    /* ── Category sections ── */
+    .rules-body {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .cat-section {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--surface2);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.1s;
+    }
+
+    .cat-header:hover { background: #2a2a2a; }
+
+    .cat-title {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      flex: 1;
+    }
+
+    .cat-meta {
+      font-family: var(--mono);
+      font-size: 0.62rem;
+      color: var(--text-dim);
+    }
+
+    .cat-arrow {
+      font-size: 0.58rem;
+      color: var(--text-dim);
+      transition: transform 0.18s;
+      display: inline-block;
+    }
+
+    .cat-section.open .cat-arrow { transform: rotate(180deg); }
+    .cat-body { display: none; }
+    .cat-section.open .cat-body { display: block; }
+
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    }
+
+    .option-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      padding: 0.45rem 0.75rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.1s;
+      user-select: none;
+    }
+
+    .option-item:hover { background: var(--surface2); }
+
+    .option-item input[type="checkbox"] {
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border: 1.5px solid var(--border-active);
+      border-radius: 3px;
+      background: transparent;
+      cursor: pointer;
+      position: relative;
+      flex-shrink: 0;
+      margin-top: 3px;
+      transition: all 0.12s;
+    }
+
+    .option-item input[type="checkbox"]:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .option-item input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 2px;
+      top: 0;
+      width: 4px;
+      height: 7px;
+      border: 1.5px solid #000;
+      border-top: none;
+      border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .option-label strong {
+      font-size: 0.76rem;
+      font-weight: 500;
+      color: var(--text);
+      display: block;
+      line-height: 1.3;
+    }
+
+    .option-label span {
+      font-size: 0.64rem;
+      color: var(--text-muted);
+      display: block;
+      margin-top: 0.05rem;
+      line-height: 1.3;
+    }
+
+    /* ── Editors ── */
+    .editor-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .editor-pane {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+
+    .pane-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.55rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+    }
+
+    .pane-title {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .pane-actions {
+      display: flex;
+      gap: 0.35rem;
+      align-items: center;
+    }
+
+    .char-count {
+      font-family: var(--mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      margin-right: 0.2rem;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 0.18rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--mono);
+      transition: all 0.12s;
+      line-height: 1;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-active);
+      color: var(--text);
+    }
+
+    textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.65;
+      color: var(--text);
+      padding: 0.85rem 1rem;
+      min-height: 280px;
+    }
+
+    textarea::placeholder { color: var(--text-dim); }
+
+    /* ── Action bar ── */
+    .action-bar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .clean-btn {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.6rem 1.6rem;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 0.02em;
+    }
+
+    .clean-btn:hover {
+      background: #00ffb3;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(0, 229, 160, 0.28);
+    }
+
+    .clean-btn:active { transform: translateY(0); }
+
+    .size-stat {
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .size-stat .reduction { color: var(--accent); }
+
+    /* ── Changelog ── */
+    .changelog {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .changelog-header {
+      padding: 0.5rem 1rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface2);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .changelog-body {
+      padding: 0.65rem 1rem;
+      min-height: 48px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      align-items: flex-start;
+    }
+
+    .change-tag {
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      border: 1px solid;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .change-tag.removed {
+      background: rgba(255, 92, 92, 0.08);
+      border-color: rgba(255, 92, 92, 0.28);
+      color: var(--danger);
+    }
+
+    .change-tag.cleaned {
+      background: rgba(0, 229, 160, 0.07);
+      border-color: rgba(0, 229, 160, 0.22);
+      color: var(--accent);
+    }
+
+    .change-tag .count {
+      background: currentColor;
+      color: #000;
+      border-radius: 3px;
+      padding: 0 3px;
+      font-size: 0.59rem;
+      font-weight: 700;
+      min-width: 15px;
+      text-align: center;
+    }
+
+    .no-changes {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+
+    /* ── Instructions page ── */
+    .instr-main {
+      flex: 1;
+      padding: 2rem 2rem 3rem;
+      max-width: 820px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    .instr-section h2 {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 0.85rem;
+    }
+
+    .instr-section p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-bottom: 0.65rem;
+    }
+
+    .instr-section p:last-child { margin-bottom: 0; }
+
+    .instr-section ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .instr-section ul li {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.65;
+      padding-left: 1.1rem;
+      position: relative;
+    }
+
+    .instr-section ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: var(--text-dim);
+    }
+
+    .instr-section ul li strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .instr-callout {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 6px;
+      padding: 0.9rem 1.1rem;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.75;
+      margin-top: 0.75rem;
+    }
+
+    .instr-callout strong { color: var(--text); font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-left">
+    <div class="logo-icon">&lt;/&gt;</div>
+    <h1>HTML Cleanup Tool</h1>
+    <span class="tagline">— strip formatting noise, keep what matters</span>
+  </div>
+  <nav class="tab-nav">
+    <button class="tab-btn active" id="tab-tool" onclick="showTab('tool')">Tool</button>
+    <button class="tab-btn" id="tab-instructions" onclick="showTab('instructions')">Instructions</button>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════
+     TOOL PAGE
+══════════════════════════════════════ -->
+<div class="page active" id="page-tool">
+<div class="tool-main">
+
+  <div class="rules-panel">
+    <div class="rules-header">
+      <span class="rules-title">⚙ Cleanup Rules</span>
+      <div class="preset-group">
+        <span class="preset-label">Preset:</span>
+        <button class="preset-btn" id="preset-safe"       onclick="setPreset('safe')">Safe</button>
+        <button class="preset-btn" id="preset-thorough"   onclick="setPreset('thorough')">Thorough</button>
+        <button class="preset-btn" id="preset-aggressive" onclick="setPreset('aggressive')">Aggressive</button>
+        <div class="preset-divider"></div>
+        <button class="preset-btn" id="preset-none" onclick="setPreset('none')">Clear All</button>
+      </div>
+    </div>
+
+    <div class="rules-body">
+
+      <div class="cat-section" id="cat-attributes">
+        <div class="cat-header" onclick="toggleCat('cat-attributes')">
+          <span class="cat-title">Attributes</span>
+          <span class="cat-meta" id="meta-cat-attributes"></span>
+          <span class="cat-arrow">▼</span>
+        </div>
+        <div class="cat-body">
+          <div class="options-grid">
+            <label class="option-item">
+              <input type="checkbox" id="opt_inline_styles">
+              <div class="option-label"><strong>Inline styles</strong><span>Strip all style="..." attributes</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_classes">
+              <div class="option-label"><strong>Class attributes</strong><span>Remove all class="..." attributes</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_data_attrs">
+              <div class="option-label"><strong>data-* attributes</strong><span>Strip tracking and editor data attributes</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_ids">
+              <div class="option-label"><strong>id attributes</strong><span>Remove id="..." except on &lt;a&gt; anchors</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_lang_attrs">
+              <div class="option-label"><strong>lang= on inline elements</strong><span>Remove lang="en-US" injected by editors</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_presentational_attrs">
+              <div class="option-label"><strong>Presentational attributes</strong><span>Remove align=, valign=, bgcolor=, cellpadding=</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_aria_attrs">
+              <div class="option-label"><strong>aria-* attributes</strong><span>Strip aria- attributes injected by WYSIWYG editors</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_tabindex">
+              <div class="option-label"><strong>tabindex attributes</strong><span>Remove tabindex on non-interactive elements</span></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cat-section" id="cat-tags">
+        <div class="cat-header" onclick="toggleCat('cat-tags')">
+          <span class="cat-title">Tags</span>
+          <span class="cat-meta" id="meta-cat-tags"></span>
+          <span class="cat-arrow">▼</span>
+        </div>
+        <div class="cat-body">
+          <div class="options-grid">
+            <label class="option-item">
+              <input type="checkbox" id="opt_empty_p">
+              <div class="option-label"><strong>Empty &lt;p&gt; tags</strong><span>Remove &lt;p&gt; tags with only whitespace or &amp;nbsp;</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_empty_spans">
+              <div class="option-label"><strong>Empty / bare &lt;span&gt; tags</strong><span>Remove spans with no attributes or content</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_font_tags">
+              <div class="option-label"><strong>&lt;font&gt; tags</strong><span>Unwrap legacy &lt;font&gt; elements, keep content</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_center_tags">
+              <div class="option-label"><strong>&lt;center&gt; tags</strong><span>Unwrap deprecated &lt;center&gt;, keep content</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_double_br">
+              <div class="option-label"><strong>Duplicate &lt;br&gt; tags</strong><span>Collapse consecutive &lt;br&gt; into one</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_redundant_nesting">
+              <div class="option-label"><strong>Redundant nested tags</strong><span>Collapse doubled &lt;strong&gt;&lt;strong&gt;, &lt;em&gt;&lt;em&gt; etc.</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_normalize_bi">
+              <div class="option-label"><strong>Normalize &lt;b&gt; / &lt;i&gt; tags</strong><span>Convert &lt;b&gt; to &lt;strong&gt; and &lt;i&gt; to &lt;em&gt;</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_empty_divs">
+              <div class="option-label"><strong>Bare wrapper &lt;div&gt; tags</strong><span>Unwrap &lt;div&gt; tags with no attributes</span></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cat-section" id="cat-encoding">
+        <div class="cat-header" onclick="toggleCat('cat-encoding')">
+          <span class="cat-title">Encoding &amp; Invisible Characters</span>
+          <span class="cat-meta" id="meta-cat-encoding"></span>
+          <span class="cat-arrow">▼</span>
+        </div>
+        <div class="cat-body">
+          <div class="options-grid">
+            <label class="option-item">
+              <input type="checkbox" id="opt_zero_width">
+              <div class="option-label"><strong>Zero-width spaces</strong><span>Remove invisible &#8203; and \u200B characters</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_soft_hyphens">
+              <div class="option-label"><strong>Soft &amp; non-breaking hyphens</strong><span>Remove &amp;shy; and convert non-breaking hyphens</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_smart_quotes">
+              <div class="option-label"><strong>Smart quotes</strong><span>Normalize curly quotes to straight ASCII quotes</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_extra_nbsp">
+              <div class="option-label"><strong>Extra &amp;nbsp; chains</strong><span>Collapse runs of 3+ &amp;nbsp; down to one</span></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cat-section" id="cat-office">
+        <div class="cat-header" onclick="toggleCat('cat-office')">
+          <span class="cat-title">MS Office &amp; CMS Artifacts</span>
+          <span class="cat-meta" id="meta-cat-office"></span>
+          <span class="cat-arrow">▼</span>
+        </div>
+        <div class="cat-body">
+          <div class="options-grid">
+            <label class="option-item">
+              <input type="checkbox" id="opt_ms_office">
+              <div class="option-label"><strong>MS Office markup</strong><span>Remove &lt;o:p&gt;, mso-* styles, if/endif blocks, xmlns</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_html_comments">
+              <div class="option-label"><strong>HTML comments</strong><span>Remove all &lt;!-- ... --&gt; comments</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_tag_whitespace">
+              <div class="option-label"><strong>Stray whitespace in tags</strong><span>Fix &lt;p &gt; with trailing space before &gt;</span></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cat-section" id="cat-whitespace">
+        <div class="cat-header" onclick="toggleCat('cat-whitespace')">
+          <span class="cat-title">Whitespace</span>
+          <span class="cat-meta" id="meta-cat-whitespace"></span>
+          <span class="cat-arrow">▼</span>
+        </div>
+        <div class="cat-body">
+          <div class="options-grid">
+            <label class="option-item">
+              <input type="checkbox" id="opt_normalize_whitespace">
+              <div class="option-label"><strong>Normalize blank lines</strong><span>Collapse 3+ consecutive blank lines to two</span></div>
+            </label>
+            <label class="option-item">
+              <input type="checkbox" id="opt_trailing_whitespace">
+              <div class="option-label"><strong>Trailing whitespace</strong><span>Trim trailing spaces and tabs from each line</span></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="editor-row">
+    <div class="editor-pane">
+      <div class="pane-header">
+        <span class="pane-title">Input</span>
+        <div class="pane-actions">
+          <span class="char-count" id="input-count">0 characters</span>
+          <button class="icon-btn" onclick="clearInput()">✕ clear</button>
+          <button class="icon-btn" onclick="pasteInput()">⌅ paste</button>
+        </div>
+      </div>
+      <textarea id="input" placeholder="Paste your HTML here..." oninput="updateInputCount()"></textarea>
+    </div>
+    <div class="editor-pane">
+      <div class="pane-header">
+        <span class="pane-title">Output</span>
+        <div class="pane-actions">
+          <span class="char-count" id="output-count">0 characters</span>
+          <button class="icon-btn" id="copy-btn" onclick="copyOutput()">⎘ copy</button>
+        </div>
+      </div>
+      <textarea id="output" readonly placeholder="Cleaned HTML will appear here..."></textarea>
+    </div>
+  </div>
+
+  <div class="action-bar">
+    <button class="clean-btn" onclick="cleanHTML()">▶ Run Cleanup</button>
+    <span class="size-stat" id="size-stat"></span>
+  </div>
+
+  <div class="changelog">
+    <div class="changelog-header">Changes Applied</div>
+    <div class="changelog-body" id="changelog-body">
+      <span class="no-changes">Run cleanup to see what was changed.</span>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     INSTRUCTIONS PAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-instructions">
+<div class="instr-main">
+
+  <div class="instr-section">
+    <h2>What this tool does</h2>
+    <p>HTML Cleanup Tool strips formatting noise from HTML without touching your actual content. It's built for situations where you're copying HTML from one platform to another — like migrating articles between a CMS, pasting from a rich text editor, or cleaning up content copied from Word or Google Docs — and the destination ends up with a mess of inline styles, junk attributes, and invisible characters that weren't supposed to come along.</p>
+    <p>Paste your messy HTML into the Input box, choose a preset or configure individual rules, hit Run Cleanup, and copy the cleaned result.</p>
+  </div>
+
+  <div class="instr-section">
+    <h2>What it never touches</h2>
+    <p>No matter which preset or rules you have enabled, the following are always preserved:</p>
+    <ul>
+      <li><strong>All text content</strong> — words, sentences, paragraphs</li>
+      <li><strong>Links</strong> — all &lt;a&gt; tags and their href values stay intact</li>
+      <li><strong>Images</strong> — &lt;img&gt; tags and their src attributes are never removed</li>
+      <li><strong>Document structure</strong> — headings, paragraphs, lists, tables and their data</li>
+      <li><strong>Semantic formatting</strong> — bold, italic, underline tags (&lt;strong&gt;, &lt;em&gt;, etc.)</li>
+      <li><strong>Anchor IDs</strong> — id attributes on &lt;a&gt; tags are preserved even when id removal is enabled, since they may be link targets</li>
+    </ul>
+    <div class="instr-callout">
+      <strong>This is not scorched earth.</strong> Unlike pasting into Notepad — which strips everything down to raw text with no tags at all — this tool keeps your document structure completely intact. Think of it as the difference between a cluttered Word doc and a clean one: same content, same layout, just without all the formatting noise layered on top.
+    </div>
+  </div>
+
+  <div class="instr-section">
+    <h2>Presets explained</h2>
+    <ul>
+      <li><strong>Safe</strong> — The recommended starting point. Removes the most common junk (inline styles, class attributes, MS Office markup, empty tags, invisible characters) with essentially zero risk of affecting how your content looks or behaves.</li>
+      <li><strong>Thorough</strong> — Everything in Safe, plus less common but still generally safe removals: id attributes on non-anchor elements, tabindex, extra &amp;nbsp; chains, HTML comments, bare &lt;div&gt; wrappers, &lt;b&gt;/&lt;i&gt; normalization, and smart quote conversion. Use this when Safe isn't enough.</li>
+      <li><strong>Aggressive</strong> — All rules enabled, including aria-* attributes. Best for heavily polluted HTML where you want the most complete cleanup. Review the output before using it.</li>
+      <li><strong>Clear All</strong> — Unchecks everything so you can hand-pick exactly which rules to run.</li>
+    </ul>
+  </div>
+
+  <div class="instr-section">
+    <h2>Rule categories</h2>
+    <ul>
+      <li><strong>Attributes</strong> — Removes formatting and metadata attributes that editors inject but serve no purpose in the destination. Includes inline styles, class names, data-* tracking attributes, lang= on inline elements, and old HTML4 presentational attributes like align= and bgcolor=.</li>
+      <li><strong>Tags</strong> — Cleans up tag-level clutter: empty paragraphs, bare spans, legacy &lt;font&gt; and &lt;center&gt; elements (content is kept, just the wrapper tag is removed), duplicate &lt;br&gt; tags, and redundant nested formatting like &lt;strong&gt;&lt;strong&gt;.</li>
+      <li><strong>Encoding &amp; Invisible Characters</strong> — Targets characters you can't see but that cause problems: zero-width spaces, soft hyphens, non-breaking hyphens from Word's autocorrect, and curly/smart quotes.</li>
+      <li><strong>MS Office &amp; CMS Artifacts</strong> — Specifically targets markup that comes from copying out of Word, Outlook, or certain CMS editors: &lt;o:p&gt; tags, mso-* style values, conditional comment blocks, and xmlns namespace declarations.</li>
+      <li><strong>Whitespace</strong> — Collapses excessive blank lines and trims trailing spaces from each line.</li>
+    </ul>
+  </div>
+
+  <div class="instr-section">
+    <h2>Tips</h2>
+    <ul>
+      <li>The <strong>Changes Applied</strong> bar at the bottom of the tool shows exactly which rules fired, so you can always see what was modified.</li>
+      <li>If your destination platform uses specific class names to style callout boxes, tables, or code blocks, be careful with the <strong>Class attributes</strong> rule — those classes would be removed along with the junk ones.</li>
+      <li>The <strong>Smart quotes</strong> rule converts curly quotes to straight ASCII quotes. If your content intentionally uses typographic quotes (like in published articles), leave this one off.</li>
+      <li>The <strong>aria-*</strong> rule is only in Aggressive because some aria attributes are intentionally added for accessibility. Only remove them if you know they were injected by an editor rather than added on purpose.</li>
+      <li>You can mix and match rules manually after applying a preset — presets just set a starting point.</li>
+    </ul>
+  </div>
+
+</div>
+</div>
+
+<script>
+  // ── Tab switching ──
+  function showTab(tab) {
+    document.getElementById('page-tool').classList.toggle('active', tab === 'tool');
+    document.getElementById('page-instructions').classList.toggle('active', tab === 'instructions');
+    document.getElementById('tab-tool').classList.toggle('active', tab === 'tool');
+    document.getElementById('tab-instructions').classList.toggle('active', tab === 'instructions');
+  }
+
+  // ── Category maps ──
+  const catMap = {
+    'cat-attributes': ['opt_inline_styles','opt_classes','opt_data_attrs','opt_ids','opt_lang_attrs','opt_presentational_attrs','opt_aria_attrs','opt_tabindex'],
+    'cat-tags':       ['opt_empty_p','opt_empty_spans','opt_font_tags','opt_center_tags','opt_double_br','opt_redundant_nesting','opt_normalize_bi','opt_empty_divs'],
+    'cat-encoding':   ['opt_zero_width','opt_soft_hyphens','opt_smart_quotes','opt_extra_nbsp'],
+    'cat-office':     ['opt_ms_office','opt_html_comments','opt_tag_whitespace'],
+    'cat-whitespace': ['opt_normalize_whitespace','opt_trailing_whitespace'],
+  };
+
+  const safeOpts = [
+    'opt_inline_styles','opt_classes','opt_data_attrs','opt_lang_attrs',
+    'opt_presentational_attrs','opt_empty_p','opt_empty_spans','opt_font_tags',
+    'opt_center_tags','opt_double_br','opt_redundant_nesting','opt_zero_width',
+    'opt_soft_hyphens','opt_ms_office','opt_tag_whitespace',
+    'opt_normalize_whitespace','opt_trailing_whitespace'
+  ];
+
+  const thoroughOpts = [
+    ...safeOpts,
+    'opt_ids','opt_tabindex','opt_extra_nbsp','opt_html_comments',
+    'opt_empty_divs','opt_normalize_bi','opt_smart_quotes'
+  ];
+
+  const allOpts = Object.values(catMap).flat();
+
+  function setPreset(preset) {
+    ['safe','thorough','aggressive','none'].forEach(p => {
+      document.getElementById('preset-' + p)?.classList.remove('active');
+    });
+    if (['safe','thorough','aggressive'].includes(preset)) {
+      document.getElementById('preset-' + preset).classList.add('active');
+    }
+    allOpts.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (preset === 'aggressive') el.checked = true;
+      else if (preset === 'none') el.checked = false;
+      else if (preset === 'safe') el.checked = safeOpts.includes(id);
+      else if (preset === 'thorough') el.checked = thoroughOpts.includes(id);
+    });
+    updateAllMeta();
+  }
+
+  function toggleCat(catId) {
+    document.getElementById(catId).classList.toggle('open');
+  }
+
+  function updateAllMeta() {
+    for (const [catId, opts] of Object.entries(catMap)) {
+      const checked = opts.filter(id => document.getElementById(id)?.checked).length;
+      const el = document.getElementById('meta-' + catId);
+      if (el) el.textContent = checked + ' / ' + opts.length;
+    }
+  }
+
+  document.addEventListener('change', e => {
+    if (e.target.type === 'checkbox') updateAllMeta();
+  });
+
+  // ── Editor helpers ──
+  function updateInputCount() {
+    const val = document.getElementById('input').value;
+    document.getElementById('input-count').textContent = val.length.toLocaleString() + ' characters';
+  }
+
+  function clearInput() {
+    document.getElementById('input').value = '';
+    updateInputCount();
+  }
+
+  async function pasteInput() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('input').value = text;
+      updateInputCount();
+    } catch(e) {
+      alert('Clipboard access denied. Please paste manually with Ctrl+V.');
+    }
+  }
+
+  function copyOutput() {
+    const val = document.getElementById('output').value;
+    if (!val) return;
+    navigator.clipboard.writeText(val).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '✓ copied';
+      setTimeout(() => btn.textContent = '⎘ copy', 1600);
+    });
+  }
+
+  function get(id) { return document.getElementById(id).checked; }
+
+  // ── Main cleanup ──
+  function cleanHTML() {
+    const input = document.getElementById('input').value;
+    if (!input.trim()) return;
+
+    let output = input;
+    const changes = [];
+
+    function applyRule(pattern, replacement, label, type) {
+      const before = output;
+      output = output.replace(pattern, replacement);
+      if (output !== before) {
+        const matches = (before.match(pattern) || []).length;
+        changes.push({ label, type, matches });
+      }
+    }
+
+    function applyBlock(fn, label, type) {
+      const before = output;
+      fn();
+      if (output !== before) changes.push({ label, type, matches: '✓' });
+    }
+
+    if (get('opt_ms_office')) {
+      applyBlock(() => {
+        output = output.replace(/<!--\[if[^\]]*\]>[\s\S]*?<!\[endif\]-->/gi, '');
+        output = output.replace(/<\/?o:[a-z]+[^>]*>/gi, '');
+        output = output.replace(/\smso-[a-z-]+\s*:[^;}"']+;?/gi, '');
+        output = output.replace(/\s*xmlns(?::[a-z]+)?="[^"]*"/gi, '');
+      }, 'MS Office markup', 'removed');
+    }
+
+    if (get('opt_html_comments'))
+      applyRule(/<!--[\s\S]*?-->/g, '', 'HTML comments', 'removed');
+
+    if (get('opt_inline_styles'))
+      applyRule(/\sstyle="[^"]*"/gi, '', 'Inline styles', 'removed');
+
+    if (get('opt_classes'))
+      applyRule(/\sclass="[^"]*"/gi, '', 'class= attributes', 'removed');
+
+    if (get('opt_data_attrs'))
+      applyRule(/\sdata-[a-z][a-z0-9-]*="[^"]*"/gi, '', 'data-* attributes', 'removed');
+
+    if (get('opt_ids')) {
+      applyBlock(() => {
+        output = output.replace(/(<(?!a[\s>\/])[a-z][^>]*?)\sid="[^"]*"/gi, '$1');
+      }, 'id= attributes', 'removed');
+    }
+
+    if (get('opt_lang_attrs')) {
+      applyBlock(() => {
+        output = output.replace(/(<(?:span|p|div|td|th|li|ul|ol|h[1-6])[^>]*?)\slang="[^"]*"/gi, '$1');
+      }, 'lang= on inline elements', 'removed');
+    }
+
+    if (get('opt_presentational_attrs')) {
+      applyBlock(() => {
+        output = output.replace(/\s(?:align|valign|bgcolor|background|cellpadding|cellspacing)="[^"]*"/gi, '');
+        output = output.replace(/(<(?:table|td|th)[^>]*?)\sborder="[^"]*"/gi, '$1');
+      }, 'Presentational attributes', 'removed');
+    }
+
+    if (get('opt_aria_attrs'))
+      applyRule(/\saria-[a-z-]+="[^"]*"/gi, '', 'aria-* attributes', 'removed');
+
+    if (get('opt_tabindex'))
+      applyRule(/\stabindex="[^"]*"/gi, '', 'tabindex attributes', 'removed');
+
+    if (get('opt_tag_whitespace'))
+      applyRule(/(<[a-z][a-z0-9]*)\s+(>)/gi, '$1$2', 'Stray whitespace in tags', 'cleaned');
+
+    if (get('opt_font_tags')) {
+      applyBlock(() => {
+        output = output.replace(/<font[^>]*>([\s\S]*?)<\/font>/gi, '$1');
+      }, '<font> tags unwrapped', 'cleaned');
+    }
+
+    if (get('opt_center_tags')) {
+      applyBlock(() => {
+        output = output.replace(/<center[^>]*>([\s\S]*?)<\/center>/gi, '$1');
+      }, '<center> tags unwrapped', 'cleaned');
+    }
+
+    if (get('opt_empty_divs')) {
+      applyBlock(() => {
+        for (let i = 0; i < 4; i++)
+          output = output.replace(/<div>\s*([\s\S]*?)\s*<\/div>/g, '$1');
+      }, 'Bare <div> wrappers unwrapped', 'cleaned');
+    }
+
+    if (get('opt_redundant_nesting')) {
+      applyBlock(() => {
+        ['strong','em','b','i','u','s'].forEach(tag => {
+          const re = new RegExp(`<${tag}>(\\s*)<${tag}>([\\s\\S]*?)<\\/${tag}>(\\s*)<\\/${tag}>`, 'gi');
+          output = output.replace(re, `<${tag}>$2</${tag}>`);
+        });
+      }, 'Redundant nested tags', 'cleaned');
+    }
+
+    if (get('opt_normalize_bi')) {
+      applyBlock(() => {
+        output = output.replace(/<b(\s[^>]*)?>([^<]*)<\/b>/gi, '<strong$1>$2</strong>');
+        output = output.replace(/<i(\s[^>]*)?>([^<]*)<\/i>/gi, '<em$1>$2</em>');
+      }, '<b> / <i> normalized to semantic tags', 'cleaned');
+    }
+
+    if (get('opt_empty_spans')) {
+      applyBlock(() => {
+        for (let i = 0; i < 4; i++) {
+          output = output.replace(/<span[^>]*>\s*<\/span>/gi, '');
+          output = output.replace(/<span>\s*([\s\S]*?)\s*<\/span>/gi, '$1');
+        }
+      }, 'Empty / bare <span> tags', 'removed');
+    }
+
+    if (get('opt_empty_p'))
+      applyRule(/<p[^>]*>(\s|&nbsp;|<br\s*\/?>)*<\/p>/gi, '', 'Empty <p> tags', 'removed');
+
+    if (get('opt_double_br'))
+      applyRule(/(<br\s*\/?>\s*){2,}/gi, '<br>', 'Duplicate <br> tags', 'cleaned');
+
+    if (get('opt_zero_width')) {
+      applyBlock(() => {
+        output = output.replace(/&#8203;/g, '');
+        output = output.replace(/\u200B/g, '');
+        output = output.replace(/&zwj;/g, '');
+        output = output.replace(/\u200D/g, '');
+      }, 'Zero-width spaces', 'removed');
+    }
+
+    if (get('opt_soft_hyphens')) {
+      applyBlock(() => {
+        output = output.replace(/&shy;/gi, '');
+        output = output.replace(/&#173;/g, '');
+        output = output.replace(/\u00AD/g, '');
+        output = output.replace(/\u2011/g, '-');
+      }, 'Soft / non-breaking hyphens', 'removed');
+    }
+
+    if (get('opt_smart_quotes')) {
+      applyBlock(() => {
+        output = output.replace(/[\u201C\u201D]/g, '"');
+        output = output.replace(/[\u2018\u2019]/g, "'");
+        output = output.replace(/&ldquo;|&rdquo;/gi, '"');
+        output = output.replace(/&lsquo;|&rsquo;/gi, "'");
+      }, 'Smart quotes normalized', 'cleaned');
+    }
+
+    if (get('opt_extra_nbsp')) {
+      applyBlock(() => {
+        output = output.replace(/(&nbsp;\s*){3,}/gi, '&nbsp;');
+      }, '&nbsp; chains collapsed', 'cleaned');
+    }
+
+    if (get('opt_trailing_whitespace')) {
+      applyBlock(() => {
+        output = output.replace(/[ \t]+$/gm, '');
+      }, 'Trailing whitespace', 'cleaned');
+    }
+
+    if (get('opt_normalize_whitespace')) {
+      applyBlock(() => {
+        output = output.replace(/\n{3,}/g, '\n\n');
+        output = output.trim();
+      }, 'Blank lines normalized', 'cleaned');
+    }
+
+    document.getElementById('output').value = output;
+    document.getElementById('output-count').textContent = output.length.toLocaleString() + ' characters';
+
+    const reduction = input.length - output.length;
+    const pct = input.length > 0 ? Math.round((reduction / input.length) * 100) : 0;
+    const statEl = document.getElementById('size-stat');
+    if (reduction > 0) {
+      statEl.innerHTML = `${input.length.toLocaleString()} &rarr; ${output.length.toLocaleString()} characters &nbsp; <span class="reduction">-${reduction.toLocaleString()} characters (${pct}% smaller)</span>`;
+    } else if (reduction < 0) {
+      statEl.textContent = `${input.length.toLocaleString()} \u2192 ${output.length.toLocaleString()} characters (size increased slightly)`;
+    } else {
+      statEl.textContent = `${input.length.toLocaleString()} characters \u2014 no size change`;
+    }
+
+    const logEl = document.getElementById('changelog-body');
+    if (changes.length === 0) {
+      logEl.innerHTML = '<span class="no-changes">No changes made \u2014 HTML may already be clean, or try enabling more rules.</span>';
+    } else {
+      logEl.innerHTML = changes.map(c =>
+        `<span class="change-tag ${c.type}"><span class="count">${c.matches}</span>${c.label}</span>`
+      ).join('');
+    }
+  }
+
+  // Init
+  setPreset('safe');
+</script>
+</body>
+</html>
