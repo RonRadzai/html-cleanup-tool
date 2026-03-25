@@ -129,23 +129,15 @@
     }
 
     /* ── Theme toggle ── */
-    .theme-toggle {
-      background: transparent;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      font-family: var(--mono);
-      font-size: 0.67rem;
-      padding: 0.18rem 0.55rem;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.12s;
-      white-space: nowrap;
-    }
-
-    .theme-toggle:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .theme-control { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+    .theme-label { font-family: var(--mono); font-size: 0.67rem; color: var(--text-dim); white-space: nowrap; font-weight: 500; display: flex; align-items: center; gap: 4px; }
+    .theme-icon { font-size: 14px; line-height: 1; }
+    .theme-toggle-switch { display: flex; align-items: center; cursor: pointer; }
+    .theme-toggle-switch input { display: none; }
+    .theme-toggle-track { display: inline-block; width: 36px; height: 20px; background: rgba(255,255,255,0.15); border-radius: 10px; position: relative; transition: background 0.2s; }
+    .theme-toggle-switch input:checked + .theme-toggle-track { background: var(--accent); }
+    .theme-toggle-thumb { position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; background: white; border-radius: 50%; transition: left 0.2s; }
+    .theme-toggle-switch input:checked + .theme-toggle-track .theme-toggle-thumb { left: 19px; }
 
     /* ── Pages ── */
     .page { display: none; flex-direction: column; flex: 1; }
@@ -691,9 +683,12 @@
     <button class="tab-btn active" id="tab-tool" onclick="showTab('tool')">Tool</button>
     <button class="tab-btn" id="tab-instructions" onclick="showTab('instructions')">Instructions</button>
   </nav>
-  <div style="display:flex;align-items:center;gap:0.35rem;align-self:center;margin-left:0.25rem;">
-    <span style="font-family:var(--mono);font-size:0.67rem;color:var(--text-dim);">Theme</span>
-    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()">☀ Light</button>
+  <div class="theme-control" style="align-self:center;margin-left:0.25rem;">
+    <span class="theme-label"><span class="theme-icon" id="theme-icon">🌙</span>Theme</span>
+    <label class="theme-toggle-switch">
+      <input type="checkbox" id="theme-checkbox" onchange="toggleTheme()" />
+      <span class="theme-toggle-track"><span class="theme-toggle-thumb"></span></span>
+    </label>
   </div>
 </header>
 
@@ -951,7 +946,8 @@
   // ── Theme toggle ──
   function toggleTheme() {
     const light = document.body.classList.toggle('light');
-    document.getElementById('theme-toggle').textContent = light ? '● Dark' : '☀ Light';
+    document.getElementById('theme-checkbox').checked = light;
+    document.getElementById('theme-icon').textContent = light ? '☀️' : '🌙';
     if (activePopover) activePopover.classList.toggle('light', light);
   }
 
